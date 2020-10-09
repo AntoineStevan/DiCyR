@@ -22,3 +22,6 @@ Download the 3D shapes data [here](https://console.cloud.google.com/storage/brow
 ## Notebooks:
 All notebooks are available [here](https://github.com/AnonymousDiCyR/DiCyR/tree/main/DiCyR/notebooks)
 Each of them represents one experiment iteration.
+
+## Pre-trained models:
+Pre-trained models are availables [here](https://drive.google.com/drive/folders/1-OVGsbsf7HHq8lcOR9dn5_t6rVJfmaGq?usp=sharing)
