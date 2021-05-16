@@ -234,9 +234,13 @@ TSWLatexianTemp*
 
 # saved numpy arrays.
 *.npy
+
 # some temporary miscelaenous files.
 .misc
 
 # do not include large data files.
 *data/
 *.h5
+
+# do not include torch saves.
+*.pth

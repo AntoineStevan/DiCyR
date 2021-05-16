@@ -85,7 +85,7 @@ def train_domain_adaptation(model, optimizer, source_train_loader, target_train_
 
 
 def train_disentangle(model, optimizer, source_train_loader, epochs=30, beta_max=10, running_beta=20,
-                      alpha_max=5, alpha_min=5, show_images=False):
+                      alpha_max=5, alpha_min=5, show_images=False, device="cuda"):
     betas = np.zeros(epochs)
     betas[:running_beta] = np.linspace(0.01, beta_max, running_beta)
     betas[running_beta:] = np.ones(epochs - running_beta) * beta_max
@@ -100,11 +100,11 @@ def train_disentangle(model, optimizer, source_train_loader, epochs=30, beta_max
     for epoch in tqdm(range(epochs)):
 
         # random images used for disentanglement
-        x_rand = next(iter(source_train_loader))[0].cuda()
+        x_rand = next(iter(source_train_loader))[0].to(device=device)
         for x, y in source_train_loader:
             loss = 0
-            x = x.cuda()
-            y = y.cuda()
+            x = x.to(device=device)
+            y = y.to(device=device)
             x_hat, y_hat, (z_task, z_style), (random_task, random_style), (pred_task, pred_style) = model.forward(x)
             z_style = model.encoder.forward_style(x_rand[:len(x)])
             x_prime = model.decoder(z_task, z_style)

@@ -1,19 +1,19 @@
-#!/usr/bin/env python3
-# coding: utf-8
+#! /usr/bin/env python3
 
 import sys
+sys.path.append("../")
+
 import traceback
 
-sys.path.append("../")
+# from utils import plot_swapped_styles
+from models import DisenrangledNetwork
 
 import numpy as np
 
 import torch
-from torch import nn
+import torch.nn as nn
 
-from models import DisenrangledNetwork
-from data_utils import load_shape
-from train import train_disentangle
+import matplotlib.pyplot as plt
 
 
 class Decoder(nn.Module):
@@ -160,52 +160,8 @@ class BColors:
     CBEIGEBG2 = '\33[106m'
 
 
-def print_format_table():
-    """
-    prints table of formatted text format options
-    """
-    for style in range(8):
-        for fg in range(30, 38):
-            s1 = ''
-            for bg in range(40, 48):
-                format = ';'.join([str(style), str(fg), str(bg)])
-                s1 += '\x1b[%sm %s \x1b[0m' % (format, format)
-            print(s1)
-        print('\n')
-
-
-# print_format_table()
-
-
 def main():
-    data_size = None
-    if len(sys.argv) >= 2:
-        if len(sys.argv) > 2:
-            print("too many argument. only", sys.argv[1], "will be considered.")
-        if sys.argv[1].isnumeric():
-            data_size = int(sys.argv[1])
-        else:
-            print("please enter a valid positive integer as an argument for the data size.")
-
-    if data_size is None:
-        data_size = 20000
-        print("defaulting data_size to", data_size)
-    else:
-        print("data_size =", data_size)
-
-    torch.manual_seed(123)
-
     device = "cuda" if torch.cuda.is_available() else "cpu"
-
-    torch.zeros(3).to(device=device)
-
-    np.random.seed(123)
-    torch.backends.cudnn.deterministic = True
-    torch.backends.cudnn.benchmark = False
-
-    source_train_loader = load_shape(batch_size=128, data_size=data_size, shuffle=True, verbose=True)
-
-    learning_rate = 5e-4
 
     encoder = Encoder(latent_space_dim=10, img_size=(3, 32, 32), nb_channels=3)
     conv_feat_size = encoder.conv_feat_size
@@ -215,24 +171,25 @@ def main():
                                nn.LogSoftmax())
 
     model = DisenrangledNetwork(encoder, decoder_source, classifier).to(device=device)
-    print("model:", type(model), ", source:", type(source_train_loader))
 
-    optimizer = torch.optim.Adam(model.parameters(), lr=learning_rate, weight_decay=0.001)
-
-    train_disentangle(model, optimizer, source_train_loader, epochs=50, beta_max=10, running_beta=10, show_images=False,
-                      alpha_min=10, alpha_max=10, device=device)
-
-    print("saving the model...", end=' ')
-    torch.save(model.state_dict(), "./model.pth")
+    print("loading the model...", end=' ')
+    model.load_state_dict(torch.load("./model.pth"))
     print("done")
 
-    print("saving the source train loader...", end=' ')
-    torch.save(source_train_loader, "./data_loader.pth")
-    print("done")
+    print("loading the source train loader...", end=' ')     #
+    # source_train_loader = torch.load("./data_loader.pth") ############ the problem is here !!
+    print("done")                                            #
+
+    # print("plotting the results")
+    # plot_swapped_styles(model, source_train_loader, device=device)
+
+    plt.plot()
+    plt.show()
 
 
 if __name__ == "__main__":
-    try:
-        main()
-    except:
-        print(f"\n{BColors.CRED}{traceback.format_exc()}{BColors.ENDC}")
+    if __name__ == "__main__":
+        try:
+            main()
+        except:
+            print(f"\n{BColors.CRED}{traceback.format_exc()}{BColors.ENDC}")

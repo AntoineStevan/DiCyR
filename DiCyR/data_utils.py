@@ -90,10 +90,14 @@ def load_mnist_m(**kwargs):
     return get_loader(trainset, **kwargs), get_loader(testset, **kwargs)
 
 
-def get_loader(dataset, **kwargs):
+def get_loader(dataset, verbose=False, **kwargs):
     """Get dataloader from dataset."""
-    return torch.utils.data.DataLoader(dataset, **kwargs)
-
+    if verbose:
+        print("using torch's dataloader to load the dataset...")
+    res = torch.utils.data.DataLoader(dataset, **kwargs)
+    if verbose:
+        print("done")
+    return res
 
 def load_mnist(img_size=28, augment=False, **kwargs):
     transformations = [transforms.Resize(img_size)]
@@ -157,14 +161,22 @@ class Shape(Dataset):
     """3d shape Dataset."""
 
     def __init__(self, data_path, transform=None, label_idx=4, data_size=20000, verbose=False):
+        if verbose:
+                print("loading files at", data_path, "for 3d shape experiments...", end=' ')
         dataset = h5py.File(data_path, 'r')
         dataset_size = len(dataset['images'])
+        if verbose:
+                print("sorting and sampling...", end=' ')
         indexes = np.sort(random.sample(range(dataset_size), data_size))
-        print("indices")
+        if verbose:
+                print("done")
+                print("looading the images and the labels...", end=' ')
         self.images = dataset['images'][indexes]
         self.labels = dataset['labels'][indexes][:, label_idx]
         self.transform = transform
         self.labels_unique = np.unique(self.labels)
+        if verbose:
+                print("done")
         # self.label_idx = label_idx
 
     def __len__(self):
@@ -183,7 +195,7 @@ class Shape(Dataset):
         return imgs, int(labels)
 
 
-def load_shape(label_idx=4, data_size=20000, **kwargs, verbose=False):
+def load_shape(label_idx=4, data_size=20000, verbose=False, **kwargs):
     if verbose:
         print("building the image transformation for the 3D shapes data set...", end=' ')
     # Load target images
@@ -198,7 +210,7 @@ def load_shape(label_idx=4, data_size=20000, **kwargs, verbose=False):
 
     trainset = Shape('../data/3dshapes.h5', transform=img_transform, label_idx=label_idx, data_size=data_size, verbose=verbose)
 
-    return get_loader(trainset, **kwargs)
+    return get_loader(trainset, verbose=verbose, **kwargs)
 
 
 class Synsigns(Dataset):
