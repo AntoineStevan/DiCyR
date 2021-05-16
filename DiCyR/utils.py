@@ -122,9 +122,9 @@ def plot_tsne(model, source_train_loader, target_train_loader, batch_size=128, f
         plt.axis('off')
 
 
-def plot_swapped_styles(model, train_loader):
+def plot_swapped_styles(model, train_loader, device="cuda"):
     X, _ = next(iter(train_loader))
-    y, _, (z_task, z_style), _, _ = model.forward(X.cuda())
+    y, _, (z_task, z_style), _, _ = model.forward(X.to(device=device))
     # blank
     plt.subplot(1, 6, 1)
     plt.imshow(torch.ones((32, 32, 3)))

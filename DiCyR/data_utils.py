@@ -156,10 +156,11 @@ def load_svhn(img_size=(32, 32), augment=True, grayscale=False, split=1000, **kw
 class Shape(Dataset):
     """3d shape Dataset."""
 
-    def __init__(self, data_path, transform=None, label_idx=4, data_size=20000):
+    def __init__(self, data_path, transform=None, label_idx=4, data_size=20000, verbose=False):
         dataset = h5py.File(data_path, 'r')
         dataset_size = len(dataset['images'])
         indexes = np.sort(random.sample(range(dataset_size), data_size))
+        print("indices")
         self.images = dataset['images'][indexes]
         self.labels = dataset['labels'][indexes][:, label_idx]
         self.transform = transform
@@ -182,7 +183,9 @@ class Shape(Dataset):
         return imgs, int(labels)
 
 
-def load_shape(label_idx=4, data_size=20000, **kwargs):
+def load_shape(label_idx=4, data_size=20000, **kwargs, verbose=False):
+    if verbose:
+        print("building the image transformation for the 3D shapes data set...", end=' ')
     # Load target images
     img_transform = transforms.Compose([
         transforms.ToPILImage(mode='RGB'),
@@ -190,8 +193,10 @@ def load_shape(label_idx=4, data_size=20000, **kwargs):
         transforms.ToTensor(),
         # transforms.Normalize(mean=(0.5, 0.5, 0.5), std=(0.5, 0.5, 0.5))
     ])
+    if verbose:
+        print("done")
 
-    trainset = Shape('../data/3dshapes.h5', transform=img_transform, label_idx=label_idx, data_size=data_size)
+    trainset = Shape('../data/3dshapes.h5', transform=img_transform, label_idx=label_idx, data_size=data_size, verbose=verbose)
 
     return get_loader(trainset, **kwargs)
 
